@@ -73,10 +73,10 @@ workspace ("llbc_" .. _ACTION)
     filter { "system:macosx" }
         -- 设置 macOS 最低部署目标版本，例如 10.15 (Catalina) 或更高。
         -- 这样做是为了确保系统头文件（包括 fcntl.h）会暴露较新的宏如 F_PURGEFSYNC。
-        systemversion "10.15" 
+        systemversion "11.0" 
     filter {}
     -- ** 结束添加 **
-    
+
     -- not use cxx11 abi.
     if llbc_disable_cxx11_abi then
         filter { "language:c++", "system:not windows" }
