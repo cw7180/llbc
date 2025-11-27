@@ -75,6 +75,14 @@ workspace ("llbc_" .. _ACTION)
         -- 这样做是为了确保系统头文件（包括 fcntl.h）会暴露较新的宏如 F_PURGEFSYNC。
         systemversion "11.0" 
     filter {}
+
+    -- 专门用于 macOS 的功能宏定义
+    filter { "system:macosx" }
+        -- 尝试定义 _DARWIN_C_SOURCE 以暴露所有 Darwin 系统扩展功能
+        defines { "_DARWIN_C_SOURCE" }
+        systemversion "10.15"
+    filter {}
+    
     -- ** 结束添加 **
 
     -- not use cxx11 abi.
