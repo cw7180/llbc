@@ -410,10 +410,6 @@ int LLBC_LogFileAppender::GetBackupFilesCount(const LLBC_String &logFileName) co
     return backupFilesCount;
 }
 
-void LLBC_LogFileAppender::InitializeDiscardPageCacheIdx()
-{
-}
-
 void LLBC_LogFileAppender::UpdateDiscardPageCache()
 {
     const int curAdviseDiscardIdx = static_cast<int>(_fileSize / _discardPageCacheBlockSize);
