@@ -50,6 +50,7 @@ LLBC_LogFileAppender::LLBC_LogFileAppender()
 
 , _maxFileSize(LONG_MAX)
 , _maxBackupIndex(INT_MAX)
+, _discardPageCacheBlockSize(LONG_MAX)
 
 , _file(nullptr)
 , _fileSize(0)
@@ -57,7 +58,6 @@ LLBC_LogFileAppender::LLBC_LogFileAppender()
 , _notFlushLogCount(0)
 , _logFileLastCheckTime(0)
 
-, _discardPageCacheBlockSize(LONG_MAX)
 , _lastAdviseDiscardIdx(0)
 {
 }
