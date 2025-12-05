@@ -230,9 +230,11 @@ public:
 
     /**
      * Discard file page cache.
+     * @param[in] adviseOffset  - discard block start pos, in bytes. default is 0, means from file begin.
+     * @param[in] len           - discard block length, in bytes, default is 0, means discard to file end.
      * @return int - return 0 if success, otherwise return -1.
      */
-    int DiscardPageCache() const;
+    int DiscardPageCache(sint64 adviseOffset = 0, sint64 len = 0) const;
 
 public:
     /**

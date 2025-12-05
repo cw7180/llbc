@@ -229,6 +229,12 @@ public:
      */
     int GetFileBufferSize() const;
 
+    /**
+     * Get discard page cache block size.
+     * @return sint64 - the discard page cache block size.
+     */
+    sint64 GetDiscardPageCacheBlockSize() const;
+
 public:
     /**
      * Get take over option.
@@ -289,6 +295,7 @@ private:
     bool _lazyCreateLogFile;
     LLBC_LogTraces _requireColorLogTraces;
     bool _takeOver;
+    sint64 _discardPageCacheBlockSize;
 };
 
 __LLBC_NS_END

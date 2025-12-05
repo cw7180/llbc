@@ -243,6 +243,12 @@ int LLBC_LoggerConfigInfo::Initialize(const LLBC_String &loggerName,
         if (_asyncMode)
             _fileBufferSize = __LLBC_GetLogCfg(
                 "fileBufferSize", LOG_FILE_BUFFER_SIZE, GetFileBufferSize, AsInt32);
+        
+        // Discard page cache block size.
+        if (cfg["discardPageCacheBlockSize"])
+            _discardPageCacheBlockSize = NormalizeLogFileSize(cfg["discardPageCacheBlockSize"]);
+        else
+            _discardPageCacheBlockSize = LLBC_CFG_LOG_DEFAULT_FILE_ADVISE_BLOCK_SIZE;
     }
 
     // Misc configs.
