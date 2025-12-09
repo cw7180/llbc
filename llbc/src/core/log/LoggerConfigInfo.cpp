@@ -243,6 +243,18 @@ int LLBC_LoggerConfigInfo::Initialize(const LLBC_String &loggerName,
         if (_asyncMode)
             _fileBufferSize = __LLBC_GetLogCfg(
                 "fileBufferSize", LOG_FILE_BUFFER_SIZE, GetFileBufferSize, AsInt32);
+        
+        // Advise page cache interval size.
+        if (cfg["advisePageCacheIntervalSize"])
+            _adviseIntervalSize = NormalizeLogFileSize(cfg["advisePageCacheIntervalSize"]);
+        else
+            _adviseIntervalSize = LLBC_CFG_LOG_DEFAULT_FILE_ADVISE_INTERVAL_SIZE;
+        
+        // Advise page cache buffer size.
+        if (cfg["advisePageCacheBufferSize"])
+            _adviseBufferSize = NormalizeLogFileSize(cfg["advisePageCacheBufferSize"]);
+        else
+            _adviseBufferSize = LLBC_CFG_LOG_DEFAULT_FILE_ADVISE_BUFFER_SIZE;
     }
 
     // Misc configs.

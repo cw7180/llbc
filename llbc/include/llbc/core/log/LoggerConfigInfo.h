@@ -229,6 +229,18 @@ public:
      */
     int GetFileBufferSize() const;
 
+    /**
+     * Get advise discard file page cache interval size.
+     * @return sint64 - the advise discard file page cache interval size.
+     */
+    sint64 GetAdvisePageCacheIntervalSize() const;
+
+    /**
+     * Get advise discard file page cache buffer size.
+     * @return sint64 - the advise discard file page cache buffer size.
+     */
+    sint64 GetAdvisePageCacheBufferSize() const;
+
 public:
     /**
      * Get take over option.
@@ -289,6 +301,8 @@ private:
     bool _lazyCreateLogFile;
     LLBC_LogTraces _requireColorLogTraces;
     bool _takeOver;
+    sint64 _adviseIntervalSize;
+    sint64 _adviseBufferSize;
 };
 
 __LLBC_NS_END

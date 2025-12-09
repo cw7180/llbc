@@ -153,6 +153,16 @@ inline int LLBC_LoggerConfigInfo::GetFileBufferSize() const
     return _fileBufferSize;
 }
 
+inline sint64 LLBC_LoggerConfigInfo::GetAdvisePageCacheIntervalSize() const
+{
+    return _adviseIntervalSize;
+}
+
+inline sint64 LLBC_LoggerConfigInfo::GetAdvisePageCacheBufferSize() const
+{
+    return _adviseBufferSize;
+}
+
 inline bool LLBC_LoggerConfigInfo::IsTakeOver() const
 {
     return _takeOver;

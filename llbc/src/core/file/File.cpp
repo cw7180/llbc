@@ -234,7 +234,7 @@ int LLBC_File::SetBufferMode(int bufferMode, size_t size)
     return LLBC_OK;
 }
 
-int LLBC_File::DiscardPageCache() const
+int LLBC_File::DiscardPageCache(sint64 offset, sint64 len) const
 {
     if (!IsOpened())
     {
@@ -252,7 +252,7 @@ int LLBC_File::DiscardPageCache() const
     // This allows the kernel to free the page cache associated with this file,
     // making memory available for other processes. It is a performance optimization,
     // especially useful when dealing with large files that are read only once
-    if (UNLIKELY(posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED) != 0))
+    if (UNLIKELY(posix_fadvise(fd, offset, len, POSIX_FADV_DONTNEED) != 0))
     {
         LLBC_SetLastError(LLBC_ERROR_CLIB);
         ret = LLBC_FAILED;
