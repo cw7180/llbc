@@ -158,6 +158,16 @@ inline bool LLBC_LoggerConfigInfo::IsTakeOver() const
     return _takeOver;
 }
 
+inline sint64 LLBC_LoggerConfigInfo::GetAdvisePageCacheIntervalSize() const
+{
+    return _adviseFilePageCacheDiscardSize;
+}
+
+inline sint64 LLBC_LoggerConfigInfo::GetFilePageCacheKeepInSize() const
+{
+    return _filePageCacheKeepInSize;
+}
+
 inline bool LLBC_LoggerConfigInfo::IsLazyCreateLogFile() const
 {
     return _lazyCreateLogFile;

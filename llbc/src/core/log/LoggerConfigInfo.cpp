@@ -227,7 +227,8 @@ int LLBC_LoggerConfigInfo::Initialize(const LLBC_String &loggerName,
 
         // Max file size.
         if (cfg["maxFileSize"])
-            _maxFileSize = NormalizeLogFileSize(cfg["maxFileSize"]);
+            _maxFileSize = NormalizeSizeStr(cfg["maxFileSize"], LLBC_CFG_LOG_DEFAULT_MAX_FILE_SIZE, 
+                                            1024ll, LLBC_CFG_LOG_MAX_FILE_SIZE_LIMIT);
         else if (_notConfigUseRoot)
             _maxFileSize = rootCfg->GetMaxFileSize();
         else
@@ -243,6 +244,15 @@ int LLBC_LoggerConfigInfo::Initialize(const LLBC_String &loggerName,
         if (_asyncMode)
             _fileBufferSize = __LLBC_GetLogCfg(
                 "fileBufferSize", LOG_FILE_BUFFER_SIZE, GetFileBufferSize, AsInt32);
+        
+        // File page cache advise discard size
+        _adviseFilePageCacheDiscardSize = NormalizeSizeStr(cfg["filePageCacheAdviseDiscardSize"],
+                                                           LLBC_CFG_LOG_DEFAULT_FILE_PAGE_CACHE_ADVISE_SIZE, 0,
+                                                           _maxFileSize);
+        // File page cache keep in size, less than _adviseFilePageCacheDiscardSize
+        _filePageCacheKeepInSize = NormalizeSizeStr(cfg["filePageCacheKeepInSize"], 
+                                                    LLBC_CFG_LOG_DEFAULT_FILE_PAGE_CACHE_KEEP_IN_SIZE, 0,
+                                                    _adviseFilePageCacheDiscardSize);
     }
 
     // Misc configs.
@@ -362,26 +372,30 @@ void LLBC_LoggerConfigInfo::NormalizeLogFileName()
 #endif // LLBC_TARGET_PLATFORM_IPHONE
 }
 
-sint64 LLBC_LoggerConfigInfo::NormalizeLogFileSize(const LLBC_String &logFileSize)
+sint64 LLBC_LoggerConfigInfo::NormalizeSizeStr(const LLBC_String &sizeStr, sint64 defaultSize, sint64 low, sint64 high)
 {
     // strip.
-    const LLBC_String nmlLogFileSizeStr = logFileSize.strip();
+    const LLBC_String nmlSizeStr = sizeStr.strip();
 
     // If is empty, use default.
-    if (nmlLogFileSizeStr.empty())
-        return LLBC_CFG_LOG_DEFAULT_MAX_FILE_SIZE;
+    if (nmlSizeStr.empty())
+        return defaultSize;
+
+    // if low and high limit invalid, use default.
+    if (low > high)
+        return defaultSize;
 
     // Find storage unit.
     LLBC_String::size_type unitPos = 0;
-    for (; unitPos < nmlLogFileSizeStr.size(); ++unitPos)
+    for (; unitPos < nmlSizeStr.size(); ++unitPos)
     {
-        if (!isdigit(nmlLogFileSizeStr[unitPos]) && nmlLogFileSizeStr[unitPos] != '.')
+        if (!isdigit(nmlSizeStr[unitPos]) && nmlSizeStr[unitPos] != '.')
             break;
     }
 
     // normalize storage unit.
-    const LLBC_String unit = nmlLogFileSizeStr.substr(unitPos).strip().tolower();
-    double nmlLogFileSize = LLBC_Variant(nmlLogFileSizeStr.substr(0, unitPos));
+    const LLBC_String unit = nmlSizeStr.substr(unitPos).strip().tolower();
+    double nmlLogFileSize = LLBC_Variant(nmlSizeStr.substr(0, unitPos));
     // - k/kb, kib
     if (unit == "k" || unit == "kb")
         nmlLogFileSize *= 1000.0;
@@ -402,8 +416,7 @@ sint64 LLBC_LoggerConfigInfo::NormalizeLogFileSize(const LLBC_String &logFileSiz
     //     // ... ...
 
     // Clamp.
-    return MIN(MAX(1024ll, static_cast<sint64>(nmlLogFileSize)),
-               LLBC_CFG_LOG_MAX_FILE_SIZE_LIMIT);
+    return MIN(MAX(low, static_cast<sint64>(nmlLogFileSize)), high);
 }
 
 __LLBC_NS_END

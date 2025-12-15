@@ -179,6 +179,11 @@
 #define LLBC_CFG_LOG_ROOT_LOGGER_TAKE_OVER_UNCONFIGED       1
 // Default logfile create option
 #define LLBC_CFG_LOG_LAZY_CREATE_LOG_FILE                   0
+// log file advise discard file page cache size, should
+// >= LLBC_CFG_LOG_DEFAULT_FILE_PAGE_CACHE_KEEP_IN_SIZE.
+#define LLBC_CFG_LOG_DEFAULT_FILE_PAGE_CACHE_ADVISE_SIZE    (100ll * 1024 * 1024)
+// log file page cache keep in size
+#define LLBC_CFG_LOG_DEFAULT_FILE_PAGE_CACHE_KEEP_IN_SIZE   (50ll * 1024 * 1024)
 // Default log config item not config use default or root config(root/default).
 #define LLBC_CFG_LOG_DEFAULT_NOT_CONFIG_OPTION_USE          "root"
 // Log data object pool units size per stripe.
