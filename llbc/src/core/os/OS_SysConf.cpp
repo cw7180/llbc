@@ -27,7 +27,7 @@
 
 __LLBC_NS_BEGIN
 
-LLBC_EXPORT sint64 __LLBC_sysPageSize = 0;
+sint64 __LLBC_sysPageSize = 0;
 
 int LLBC_InitSysConf()
 {
