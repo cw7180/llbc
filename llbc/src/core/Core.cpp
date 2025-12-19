@@ -28,6 +28,9 @@ __LLBC_NS_BEGIN
 
 int __LLBC_CoreStartup()
 {
+    if (LLBC_InitSysConf() != LLBC_OK)
+        return LLBC_FAILED;
+
     // Initialize Symbol(if enabled).
     #if LLBC_CFG_OS_IMPL_SYMBOL
     if (LLBC_InitSymbol() != LLBC_OK)
@@ -124,6 +127,7 @@ void __LLBC_CoreCleanup()
     (void)LLBC_CleanupSymbol();
     #endif // LLBC_CFG_OS_IMPL_SYMBOL
 
+    LLBC_CleanUpSysConf();
 }
 
 __LLBC_NS_END
