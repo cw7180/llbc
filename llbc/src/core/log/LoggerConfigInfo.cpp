@@ -276,6 +276,9 @@ int LLBC_LoggerConfigInfo::Initialize(const LLBC_String &loggerName,
             
             // Align page cache retain size.
             _pageCacheRetainSize = (_fadviseDiscardSize * pageCacheRetainPercent / 100) & ~(__LLBC_sysPageSize - 1);
+
+            LLBC_PrintLn("fadviseDiscardSize: %lld, pageCacheRetainSize: %lld pageSize:%lld",
+                        _fadviseDiscardSize, _pageCacheRetainSize, __LLBC_sysPageSize);
         }
     }
 
