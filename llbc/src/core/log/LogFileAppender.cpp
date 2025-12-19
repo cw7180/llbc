@@ -48,14 +48,19 @@ LLBC_LogFileAppender::LLBC_LogFileAppender()
 : _fileBufferSize(0)
 , _fileRollingMode(LLBC_LogRollingMode::End)
 
-, _maxFileSize(LONG_MAX)
-, _maxBackupIndex(INT_MAX)
+, _maxFileSize(std::numeric_limits<sint64>::max())
+, _maxBackupIndex(std::numeric_limits<int>::max())
+,_isFadviseDiscard(false)
+, _fadviseDiscardSize(0)
+, _pageCacheRetainSize(0)
 
 , _file(nullptr)
 , _fileSize(0)
 
 , _notFlushLogCount(0)
 , _logFileLastCheckTime(0)
+
+, _lastAdviseEndOffset(0)
 {
 }
 
@@ -104,6 +109,9 @@ int LLBC_LogFileAppender::Initialize(const LLBC_LogAppenderInitInfo &initInfo)
 
     _maxFileSize = initInfo.maxFileSize > 0 ? initInfo.maxFileSize : LONG_MAX;
     _maxBackupIndex = MAX(0, initInfo.maxBackupIndex);
+    _isFadviseDiscard = initInfo.isFadviseDiscard;
+    _fadviseDiscardSize = initInfo.fadviseDiscardSize;
+    _pageCacheRetainSize = initInfo.pageCacheRetainSize;
 
     // If lazy create log file, return it.
     if (initInfo.lazyCreateLogFile)
@@ -131,9 +139,14 @@ void LLBC_LogFileAppender::Finalize()
     _file.DiscardPageCache();
     _file.Close();
     _fileSize = 0;
+    _isFadviseDiscard = false;
+    _fadviseDiscardSize = 0;
+    _pageCacheRetainSize = 0;
 
     _notFlushLogCount = 0;
     _logFileLastCheckTime = 0;
+
+    _lastAdviseEndOffset = 0;
 
     _Base::Finalize();
 }
@@ -174,6 +187,7 @@ int LLBC_LogFileAppender::Output(const LLBC_LogData &data)
             return LLBC_FAILED;
         }
 
+        UpdateAdviseDiscardPageCache();
         return LLBC_OK;
     }
 
@@ -288,6 +302,7 @@ int LLBC_LogFileAppender::ReOpenFile(const LLBC_String &newFileName, bool clear)
         _file.DiscardPageCache();
         _file.Close();
         _fileSize = 0;
+        _lastAdviseEndOffset = 0;
     }
 
     // Reset not flush log count variables.
@@ -329,6 +344,7 @@ int LLBC_LogFileAppender::ReOpenFile(const LLBC_String &newFileName, bool clear)
 
     // Update file size, buffer info.
     _fileSize = _file.GetFileSize();
+    _lastAdviseEndOffset = _fileSize;
     UpdateFileBufferInfo();
 
     return LLBC_OK;
@@ -338,13 +354,20 @@ void LLBC_LogFileAppender::BackupFiles()
 {
     if (_maxBackupIndex == 0)
         return;
+    
+    // Discard file page cache.
+    if (_isFadviseDiscard && LIKELY(_fileSize == _file.GetFileSize()))
+    {
+        const sint64 pageCacheDiscarSize = _fileSize - _lastAdviseEndOffset - _pageCacheRetainSize;
+        if (pageCacheDiscarSize > 0)
+            _file.DiscardPageCache(_lastAdviseEndOffset, pageCacheDiscarSize);
+    }
 
-    const LLBC_String filePath = _file.GetFilePath();
-    // Discard file page cache before close.
-    _file.DiscardPageCache();
     _file.Close();
     _fileSize = 0;
+    _lastAdviseEndOffset = 0;
 
+    const LLBC_String filePath = _file.GetFilePath();
     const LLBC_String filePathNoSuffix = 
         filePath.substr(0, filePath.size() - _fileSuffix.size());
 
@@ -402,6 +425,29 @@ int LLBC_LogFileAppender::GetBackupFilesCount(const LLBC_String &logFileName) co
     }
 
     return backupFilesCount;
+}
+
+LLBC_FORCE_INLINE void LLBC_LogFileAppender::UpdateAdviseDiscardPageCache()
+{
+    // Disable advise discard file page cache.
+    if (!_isFadviseDiscard)
+        return;
+
+    const sint64 filePageCacheSize = _fileSize - _lastAdviseEndOffset;
+    if (filePageCacheSize <= _fadviseDiscardSize)
+        return;
+
+    if (UNLIKELY(_fileSize != _file.GetFileSize()))
+    {
+        Flush();
+        ReOpenFile(_file.GetFilePath(), false);
+        return;
+    }
+
+    const sint64 adviseSize = filePageCacheSize - _pageCacheRetainSize;
+    _file.DiscardPageCache(_lastAdviseEndOffset, adviseSize);
+
+    _lastAdviseEndOffset = _lastAdviseEndOffset + adviseSize;
 }
 
 __LLBC_NS_END

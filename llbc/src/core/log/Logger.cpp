@@ -140,6 +140,9 @@ int LLBC_Logger::Initialize(const LLBC_LoggerConfigInfo *config, LLBC_LogRunnabl
         appenderInitInfo.fileRollingMode = _config->GetFileRollingMode();
         appenderInitInfo.maxFileSize = _config->GetMaxFileSize();
         appenderInitInfo.maxBackupIndex = _config->GetMaxBackupIndex();
+        appenderInitInfo.isFadviseDiscard = _config->GetIsNeedFadvise();
+        appenderInitInfo.fadviseDiscardSize = _config->GetFadviseDiscardSize();
+        appenderInitInfo.pageCacheRetainSize = _config->GetPageCacheRetainSize();
         appenderInitInfo.lazyCreateLogFile = _config->IsLazyCreateLogFile();
 
         if (!_config->IsAsyncMode())

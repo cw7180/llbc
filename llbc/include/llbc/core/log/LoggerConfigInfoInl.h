@@ -158,6 +158,21 @@ inline bool LLBC_LoggerConfigInfo::IsTakeOver() const
     return _takeOver;
 }
 
+inline bool LLBC_LoggerConfigInfo::GetIsNeedFadvise() const
+{
+    return _isFadviseDiscard;
+}
+
+inline sint64 LLBC_LoggerConfigInfo::GetFadviseDiscardSize() const
+{
+    return _fadviseDiscardSize;
+}
+
+inline sint64 LLBC_LoggerConfigInfo::GetPageCacheRetainSize() const
+{
+    return _pageCacheRetainSize;
+}
+
 inline bool LLBC_LoggerConfigInfo::IsLazyCreateLogFile() const
 {
     return _lazyCreateLogFile;
