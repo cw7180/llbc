@@ -25,17 +25,17 @@
 
 __LLBC_NS_BEGIN
 
-LLBC_EXTERN LLBC_EXPORT sint64 __LLBC_sysPageSize;
+LLBC_EXTERN LLBC_EXPORT sint64 LLBC_sysPageSize;
 
 /**
  * Initialize system configuration.
  * @return int - return 0 if success, otherwise return -1.
  */
-LLBC_EXPORT int LLBC_InitSysConf();
+LLBC_EXPORT int __LLBC_InitSysConf();
 
 /**
- * Clear system configuration.
+ * Clean up system configuration.
  */
-LLBC_EXPORT void LLBC_CleanUpSysConf();
+LLBC_EXPORT void __LLBC_CleanUpSysConf();
 
 __LLBC_NS_END

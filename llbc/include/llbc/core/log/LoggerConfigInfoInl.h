@@ -158,9 +158,9 @@ inline bool LLBC_LoggerConfigInfo::IsTakeOver() const
     return _takeOver;
 }
 
-inline bool LLBC_LoggerConfigInfo::GetIsNeedFadvise() const
+inline bool LLBC_LoggerConfigInfo::GetenableFadviseDiscard() const
 {
-    return _isFadviseDiscard;
+    return _enableFadviseDiscard;
 }
 
 inline sint64 LLBC_LoggerConfigInfo::GetFadviseDiscardSize() const
@@ -168,9 +168,9 @@ inline sint64 LLBC_LoggerConfigInfo::GetFadviseDiscardSize() const
     return _fadviseDiscardSize;
 }
 
-inline sint64 LLBC_LoggerConfigInfo::GetPageCacheRetainSize() const
+inline sint64 LLBC_LoggerConfigInfo::GetFadviseDiacardRetainSize() const
 {
-    return _pageCacheRetainSize;
+    return _fadviseDiscardRetainSize;
 }
 
 inline bool LLBC_LoggerConfigInfo::IsLazyCreateLogFile() const

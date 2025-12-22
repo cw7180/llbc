@@ -142,9 +142,9 @@ private:
     sint64 _maxFileSize;
     int _maxBackupIndex;
 
-    bool _isFadviseDiscard;
+    bool _enableFadviseDiscard;
     sint64 _fadviseDiscardSize;
-    sint64 _pageCacheRetainSize;
+    sint64 _fadviseDiscardRetainSize;
 
 private:
     LLBC_File _file;

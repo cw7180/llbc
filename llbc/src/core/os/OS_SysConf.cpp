@@ -21,15 +21,11 @@
 
 #include "llbc/core/os/OS_SysConf.h"
 
-#if LLBC_TARGET_PLATFORM_WIN32
-#include <windows.h>
-#endif
-
 __LLBC_NS_BEGIN
 
-sint64 __LLBC_sysPageSize = 0;
+sint64 LLBC_sysPageSize = 0;
 
-int LLBC_InitSysConf()
+int __LLBC_InitSysConf()
 {
 #if LLBC_TARGET_PLATFORM_LINUX
     int tmpValue = sysconf(_SC_PAGESIZE);
@@ -38,19 +34,19 @@ int LLBC_InitSysConf()
         LLBC_SetLastError(LLBC_ERROR_CLIB);
         return LLBC_FAILED;
     }
-    __LLBC_sysPageSize = tmpValue;
+    LLBC_sysPageSize = tmpValue;
 #elif LLBC_TARGET_PLATFORM_WIN32
     SYSTEM_INFO si;
     GetSystemInfo(&si);
-    __LLBC_sysPageSize = si.dwPageSize;
+    LLBC_sysPageSize = si.dwPageSize;
 #endif
 
     return LLBC_OK;
 }
 
-void LLBC_CleanUpSysConf()
+void __LLBC_CleanUpSysConf()
 {
-    __LLBC_sysPageSize = 0;
+    LLBC_sysPageSize = 0;
 }
 
 __LLBC_NS_END

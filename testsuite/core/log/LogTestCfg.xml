@@ -123,12 +123,12 @@
         <!-- 是否延迟创建(备份日志文件), 进日志记录器初始化的时候, 默认将创建或更新日志记录文件, 在非常多日志记录器且大部分在进程生命周期期间都不可能产生任何日志的时候, 此选项将变得有用. -->
         <lazyCreateLogFile>false</lazyCreateLogFile>
         <!-- 是否建议操作系统回收file page cache. -->
-        <isFadviseDiscard>false</isFadviseDiscard>
+        <enableFadviseDiscard>false</enableFadviseDiscard>
         <!-- 建议操作系统回收file page cache单次大小, 如果不配置，使用默认值: LLBC_CFG_LOG_DEFAULT_FADVISE_DISCARD_SIZE，取值范围[0, maxFileSize] -->
         <fadviseDiscardSize>40MiB</fadviseDiscardSize>
         <!-- 建议操作系统回收file page cache时, 保留的buffer百分比. 如果不配置, 使用默认值LLBC_CFG_LOG_DEFAULT_FILE_PAGE_CACHE_RETAIN_PERCENT, 取值范围：[5, 95].
-            真正回收的page cache大小是fadviseDiscardSize * (1 - pageCacheRetainSize). -->
-        <pageCacheRetainPercent>50</pageCacheRetainPercent>
+            真正回收的page cache大小是fadviseDiscardSize * (1 - fadviseDiscardRetainPercent). -->
+        <fadviseDiscardRetainPercent>50</fadviseDiscardRetainPercent>
     </root>
 
     <!-- test logger配置 -->

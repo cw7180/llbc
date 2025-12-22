@@ -181,18 +181,18 @@
 #define LLBC_CFG_LOG_ROOT_LOGGER_TAKE_OVER_UNCONFIGED       1
 // Default logfile create option
 #define LLBC_CFG_LOG_LAZY_CREATE_LOG_FILE                   0
-// Default log file is advise discard file page cache.
-#define LLBC_CFG_LOG_DEFAULT_IS_FADVISE_DISCARD             false
+// Default log file enable advise discard file page cache flag.
+#define LLBC_CFG_LOG_DEFAULT_ENABLE_FADVISE_DISCARD         false
 // Min fadvise discard file page cache size.
 #define LLBC_CFG_LOG_FADVISE_DISCARD_SIZE_MIN               (1ll * 1024 * 1024)
-// Default log file advise discard file page cache size.
+// Default log file advise discard page cache size.
 #define LLBC_CFG_LOG_DEFAULT_FADVISE_DISCARD_SIZE           (100ll * 1024 * 1024)
-// Min log file page cache retain percent.
-#define LLBC_CFG_LOG_FILE_PAGE_CACHE_RETAIN_PERCENT_MIN     5
-// Max log file page cache retain percent.
-#define LLBC_CFG_LOG_FILE_PAGE_CACHE_RETAIN_PERCENT_MAX     95
-// Default log file page cache retain percent.
-#define LLBC_CFG_LOG_DEFAULT_FILE_PAGE_CACHE_RETAIN_PERCENT 50
+// Min log file advise discard page cache retain percent.
+#define LLBC_CFG_LOG_FADVISE_DISCARD_RETAIN_PERCENT_MIN     5
+// Max log file advise discard page cache retain percent.
+#define LLBC_CFG_LOG_FADVISE_DISCARD_RETAIN_PERCENT_MAX     95
+// Default log file advise discard page cache retain percent.
+#define LLBC_CFG_LOG_DEFAULT_FADVISE_DISCARD_RETAIN_PERCENT 50
 // Default log config item not config use default or root config(root/default).
 #define LLBC_CFG_LOG_DEFAULT_NOT_CONFIG_OPTION_USE          "root"
 // Log data object pool units size per stripe.

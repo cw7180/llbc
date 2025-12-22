@@ -230,22 +230,22 @@ public:
     int GetFileBufferSize() const;
 
     /**
-     * Get advise discard file page cache flag.
-     * @return bool - the advise discard file page cache flag.
+     * Get enable advise discard file page cache flag.
+     * @return bool - the enable advise discard file page cache flag.
      */
-    bool GetIsNeedFadvise() const;
+    bool GetenableFadviseDiscard() const;
 
     /**
-     * Get advise discard file page cache size.
-     * @return sint64 - the advise discard file page cache size.
+     * Get fadvise discard file page cache size.
+     * @return sint64 - the fadvise discard file page cache size.
      */
     sint64 GetFadviseDiscardSize() const;
 
     /**
-     * Get file page cache retain size.
-     * @return sint64 - the file page cache retain size.
+     * Get fadvise discard retain size.
+     * @return sint64 - the fadvise discard retain size.
      */
-    sint64 GetPageCacheRetainSize() const;
+    sint64 GetFadviseDiacardRetainSize() const;
 
 public:
     /**
@@ -307,9 +307,9 @@ private:
     sint64 _maxFileSize;
     int _maxBackupIndex;
     int _fileBufferSize;
-    bool _isFadviseDiscard;
+    bool _enableFadviseDiscard;
     sint64 _fadviseDiscardSize;
-    sint64 _pageCacheRetainSize;
+    sint64 _fadviseDiscardRetainSize;
     bool _lazyCreateLogFile;
     LLBC_LogTraces _requireColorLogTraces;
     bool _takeOver;

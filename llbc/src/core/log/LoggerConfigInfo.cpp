@@ -67,9 +67,9 @@ LLBC_LoggerConfigInfo::LLBC_LoggerConfigInfo()
 , _maxFileSize(INT_MAX)
 , _maxBackupIndex(0)
 , _fileBufferSize(0)
-, _isFadviseDiscard(false)
+, _enableFadviseDiscard(false)
 , _fadviseDiscardSize(0)
-, _pageCacheRetainSize(0)
+, _fadviseDiscardRetainSize(0)
 , _lazyCreateLogFile(false)
 
 , _takeOver(false)
@@ -252,11 +252,11 @@ int LLBC_LoggerConfigInfo::Initialize(const LLBC_String &loggerName,
                 "fileBufferSize", LOG_FILE_BUFFER_SIZE, GetFileBufferSize, AsInt32);
         
         // Advise discard file page cache.
-        _isFadviseDiscard = LLBC_CFG_LOG_DEFAULT_IS_FADVISE_DISCARD;
-        if (cfg["isFadviseDiscard"])
-            _isFadviseDiscard = cfg["isFadviseDiscard"].AsLooseBool();
+        _enableFadviseDiscard = LLBC_CFG_LOG_DEFAULT_ENABLE_FADVISE_DISCARD;
+        if (!cfg["enableFadviseDiscard"].AsStr().strip().empty())
+            _enableFadviseDiscard = cfg["enableFadviseDiscard"].AsLooseBool();
 
-        if (_isFadviseDiscard) 
+        if (_enableFadviseDiscard) 
         {
             // Fadvise discard size.
             _fadviseDiscardSize = NormalizeSizeStr(cfg["fadviseDiscardSize"],
@@ -264,17 +264,17 @@ int LLBC_LoggerConfigInfo::Initialize(const LLBC_String &loggerName,
                                                    LLBC_CFG_LOG_FADVISE_DISCARD_SIZE_MIN,
                                                   _maxFileSize);
             // Align fadvise discard size.
-            _fadviseDiscardSize = _fadviseDiscardSize & ~(__LLBC_sysPageSize - 1);
+            _fadviseDiscardSize = _fadviseDiscardSize & ~(LLBC_sysPageSize - 1);
 
             // File page cache retain size.
-            int pageCacheRetainPercent = LLBC_CFG_LOG_DEFAULT_FILE_PAGE_CACHE_RETAIN_PERCENT;
-            if (cfg["pageCacheRetainPercent"])
-                pageCacheRetainPercent = std::clamp(cfg["pageCacheRetainPercent"].AsInt32(),
-                                                    LLBC_CFG_LOG_FILE_PAGE_CACHE_RETAIN_PERCENT_MIN,
-                                                    LLBC_CFG_LOG_FILE_PAGE_CACHE_RETAIN_PERCENT_MAX);
+            int fadviseDiscardRetainPercent = LLBC_CFG_LOG_DEFAULT_FADVISE_DISCARD_RETAIN_PERCENT;
+            if (!cfg["fadviseDiscardRetainPercent"].AsStr().strip().empty())
+                fadviseDiscardRetainPercent = std::clamp(cfg["fadviseDiscardRetainPercent"].AsInt32(),
+                                                         LLBC_CFG_LOG_FADVISE_DISCARD_RETAIN_PERCENT_MIN,
+                                                         LLBC_CFG_LOG_FADVISE_DISCARD_RETAIN_PERCENT_MAX);
             
             // Align page cache retain size.
-            _pageCacheRetainSize = (_fadviseDiscardSize * pageCacheRetainPercent / 100) & ~(__LLBC_sysPageSize - 1);
+            _fadviseDiscardRetainSize = (_fadviseDiscardSize * fadviseDiscardRetainPercent / 100) & ~(LLBC_sysPageSize - 1);
         }
     }
 
