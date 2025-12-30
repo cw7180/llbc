@@ -208,7 +208,7 @@ private:
 #ifdef LLBC_CFG_CORE_UTILS_FUNC_TRACE_ENABLED 
     #define FUNC_TRACE_EX(uin, trace_mem)                                      \
         FuncTraceStruct LLBC_Concat(__funcTracer_, __LINE__)(                  \
-            __FILENAME__, __LINE__, __FUNCTION__, (uin), (trace_mem))
+            __FILE__, __LINE__, __FUNCTION__, (uin), (trace_mem))
 #else
     #define FUNC_TRACE_EX(uin, trace_mem) ((void)0)
 #endif

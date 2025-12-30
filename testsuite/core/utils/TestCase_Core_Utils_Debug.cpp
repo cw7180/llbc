@@ -97,6 +97,9 @@ int TestCase_Core_Utils_Debug::Run(int argc, char *argv[])
     }
 
     LLBC_Print("\n");
+    {
+        FUNC_TRACE(0);
+    }
 
     LLBC_PrintLn("Press any key to continue ...");
     getchar();
