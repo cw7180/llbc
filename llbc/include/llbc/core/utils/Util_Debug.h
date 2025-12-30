@@ -155,6 +155,32 @@ private:
     static uint64 _frequency;
 };
 
+class LLBC_EXPORT FuncTraceStruct final
+{
+public:
+    FuncTraceStruct(const char *fileName,
+                    int lineNo,
+                    const char *funcName,
+                    uint32 uin,
+                    bool traceMem);
+
+    ~FuncTraceStruct();
+
+    static bool GetMemSnapshot(llbc::sint64 &mem_virt, llbc::sint64 &mem_res, llbc::sint64 &mem_shr);
+
+private:
+    const char *_fileName;
+    int _lineNo;
+    const char *_funcName;
+    uint32 _uin;
+    bool _traceMem;
+
+    llbc::uint64 _enterTime;
+    llbc::sint64 _enterMemVirt;
+    llbc::sint64 _enterMemRes;
+    llbc::sint64 _enterMemShr;
+};
+
 __LLBC_NS_END
 
 /**

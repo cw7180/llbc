@@ -23,6 +23,7 @@
 #include "llbc/common/Export.h"
 
 #include "llbc/core/os/OS_Time.h"
+#include "llbc/core/os/OS_Process.h"
 #include "llbc/core/utils/Util_Debug.h"
 
 #if LLBC_TARGET_PLATFORM_WIN32
@@ -100,6 +101,128 @@ LLBC_String LLBC_Byte2Hex(const void *bytes, size_t len, char byteSep, size_t li
 }
 
 uint64 LLBC_Stopwatch::_frequency = 0;
+
+FuncTraceStruct::FuncTraceStruct(const char* fileName,
+    int lineNo,
+    const char* funcName,
+    uint32 uin,
+    bool traceMem)
+    : _fileName(nullptr)
+    , _lineNo(lineNo)
+    , _funcName(funcName)
+    , _uin(uin)
+    , _traceMem(traceMem)
+
+    , _enterTime(LLBC_RdTsc())
+    , _enterMemVirt(0)
+    , _enterMemRes(0)
+    , _enterMemShr(0)
+{
+    _fileName = strrchr(fileName, '/');
+    _fileName = _fileName ? _fileName + 1 : fileName;
+
+#if NEXT_USE_LLBC_LOG
+    LLOG_TRACE3("FuncTrace",
+        "%s:%d|(%s)|%u|Enter(trace mem?:%d)",
+        _fileName,
+        _lineNo,
+        _funcName,
+        _uin,
+        _traceMem);
+#else // Not use llbc log
+    LogAgent(0, // LogId
+        uin, // uin
+        llbc::LLBC_LogLevel::Trace, // LogLv
+        "%s:%d|(%s)|Enter(trace mem?:%d)", // fmt
+        0, // id
+        _fileName, // fileName
+        _fileName, // fmt args
+        _lineNo,
+        _funcName,
+        _traceMem);
+#endif // NEXT_USE_LLBC_LOG
+
+    if (_traceMem)
+        GetMemSnapshot(_enterMemVirt, _enterMemRes, _enterMemShr);
+}
+
+FuncTraceStruct::~FuncTraceStruct()
+{
+    auto cost = LLBC_Stopwatch(LLBC_RdTsc() - _enterTime).Elapsed();
+    if (_traceMem) {
+        llbc::sint64 exit_mem_virt, exit_mem_res, exit_mem_shr;
+        llbc::sint64 diff_mem_virt = -1, diff_mem_res = -1, diff_mem_shr = -1;
+        if (GetMemSnapshot(exit_mem_virt, exit_mem_res, exit_mem_shr)) {
+            diff_mem_virt = exit_mem_virt - _enterMemVirt;
+            diff_mem_res = exit_mem_res - _enterMemRes;
+            diff_mem_shr = exit_mem_shr - _enterMemShr;
+        }
+
+#if NEXT_USE_LLBC_LOG
+        LLOG_TRACE3("FuncTrace",
+            "%s:%d|(%s)|%u|Leave, cost:%lld.%03lld ms, MemDiff(VIRT:%lld, RES:%lld, SHR:%lld)",
+            _fileName,
+            _lineNo,
+            _funcName,
+            _uin,
+            cost.GetTotalMillis(),
+            cost.GetTotalMicros() % 1000,
+            diff_mem_virt,
+            diff_mem_res,
+            diff_mem_shr);
+#else // Not use llbc log
+        LogAgent(_uin, // LogId
+            0, // Uin
+            llbc::LLBC_LogLevel::Trace, // LogLv
+            "%s:%d|(%s)|Leave, cost:%lld.%03lld ms, MemDiff(VIRT:%lld, RES:%lld, SHR:%lld)", // fmt
+            0, // id
+            _fileName, // fileName
+            _fileName, // fmt args
+            _lineNo,
+            _funcName,
+            cost.ToMicros() / 1000, cost.ToMicros() % 1000,
+            diff_mem_virt, diff_mem_res, diff_mem_shr);
+#endif // NEXT_USE_LLBC_LOG
+    } else {
+#if NEXT_USE_LLBC_LOG
+        LLOG_TRACE3("FuncTrace",
+            "%s:%d|(%s)|%u|Leave, cost:%lld.%03lld ms",
+            _fileName,
+            _lineNo,
+            _funcName,
+            _uin,
+            cost.GetTotalMillis(),
+            cost.GetTotalMicros() % 1000);
+#else // Not use llbc log
+        LogAgent(0, // LogId
+            _uin, // Uin
+            llbc::LLBC_LogLevel::Trace, // LogLv
+            "%s:%d|(%s)|Leave, cost:%lld.%03lld ms", // fmt
+            0, // id
+            _fileName, // fileName
+            _fileName, // fmt args
+            _lineNo,
+            _funcName,
+            cost.ToMicros() / 1000, cost.ToMicros() % 1000);
+#endif // NEXT_USE_LLBC_LOG
+    }
+}
+
+bool FuncTraceStruct::GetMemSnapshot(llbc::sint64& mem_virt, llbc::sint64& mem_res, llbc::sint64& mem_shr)
+{
+    static thread_local char statm_fpath[32] { 0 };
+    if (UNLIKELY(statm_fpath[0] == '\0'))
+        sprintf(statm_fpath, "/proc/%d/statm", LLBC_GetCurrentProcessId());
+
+    auto statm_file = fopen(statm_fpath, "r");
+    if (statm_file) {
+        (void)fscanf(statm_file, "%lld %lld %lld", &mem_virt, &mem_res, &mem_shr);
+        fclose(statm_file);
+        return true;
+    } else {
+        return false;
+    }
+}
 
 #if LLBC_TARGET_PLATFORM_WIN32
 #pragma warning(default:4996)
