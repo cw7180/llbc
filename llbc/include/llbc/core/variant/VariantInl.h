@@ -27,190 +27,358 @@
 
 __LLBC_NS_BEGIN
 
-inline LLBC_Variant::LLBC_Variant()
+inline LLBC_Variant::Holder::Holder(const bool &b) : type(LLBC_VariantType::RAW_BOOL)
 {
+    data.raw.int64Val = b ? 1 : 0;
 }
 
-inline LLBC_Variant::LLBC_Variant(const bool &b)
+inline LLBC_Variant::Holder::Holder(const sint8 &i8) : type(LLBC_VariantType::RAW_SINT8)
 {
-    _holder.type = LLBC_VariantType::RAW_BOOL;
-    _holder.data.raw.int64Val = b ? 1 : 0;
+    data.raw.int64Val = i8;
 }
 
-inline LLBC_Variant::LLBC_Variant(const sint8 &i8)
+inline LLBC_Variant::Holder::Holder(const uint8 &ui8) : type(LLBC_VariantType::RAW_UINT8)
 {
-    _holder.type = LLBC_VariantType::RAW_SINT8;
-    _holder.data.raw.int64Val = static_cast<sint64>(i8);
+    data.raw.uint64Val = ui8;
 }
 
-inline LLBC_Variant::LLBC_Variant(const uint8 &ui8)
+inline LLBC_Variant::Holder::Holder(const sint16 &i16) : type(LLBC_VariantType::RAW_SINT16)
 {
-    _holder.type = LLBC_VariantType::RAW_UINT8;
-    _holder.data.raw.uint64Val = ui8;
+    data.raw.int64Val = i16;
 }
 
-inline LLBC_Variant::LLBC_Variant(const sint16 &i16)
+inline LLBC_Variant::Holder::Holder(const uint16 &ui16) : type(LLBC_VariantType::RAW_UINT16)
 {
-    _holder.type = LLBC_VariantType::RAW_SINT16;
-    _holder.data.raw.int64Val = i16;
+    data.raw.uint64Val = ui16;
 }
 
-inline LLBC_Variant::LLBC_Variant(const uint16 &ui16)
+inline LLBC_Variant::Holder::Holder(const sint32 &i32) : type(LLBC_VariantType::RAW_SINT32)
 {
-    _holder.type = LLBC_VariantType::RAW_UINT16;
-    _holder.data.raw.uint64Val = ui16;
+    data.raw.int64Val = i32;
 }
 
-inline LLBC_Variant::LLBC_Variant(const sint32 &i32)
+inline LLBC_Variant::Holder::Holder(const uint32 &ui32) : type(LLBC_VariantType::RAW_UINT32)
 {
-    _holder.type = LLBC_VariantType::RAW_SINT32;
-    _holder.data.raw.int64Val = i32;
+    data.raw.uint64Val = ui32;
 }
 
-inline LLBC_Variant::LLBC_Variant(const uint32 &ui32)
+inline LLBC_Variant::Holder::Holder(const long &l) : type(LLBC_VariantType::RAW_LONG)
 {
-    _holder.type = LLBC_VariantType::RAW_UINT32;
-    _holder.data.raw.uint64Val = ui32;
+    data.raw.int64Val = l;
 }
 
-inline LLBC_Variant::LLBC_Variant(const long &l)
+inline LLBC_Variant::Holder::Holder(const ulong &ul) : type(LLBC_VariantType::RAW_ULONG)
 {
-    _holder.type = LLBC_VariantType::RAW_LONG;
-    _holder.data.raw.int64Val = l;
-}
-
-inline LLBC_Variant::LLBC_Variant(const ulong &ul)
-{
-    _holder.type = LLBC_VariantType::RAW_ULONG;
-    _holder.data.raw.uint64Val = ul;
+    data.raw.uint64Val = ul;
 }
 
 template <typename _T>
-inline LLBC_Variant::LLBC_Variant(const _T * const &ptr)
+inline LLBC_Variant::Holder::Holder(const _T * const &ptr) : type(LLBC_VariantType::RAW_PTR)
 {
-    _holder.type = LLBC_VariantType::RAW_PTR;
-    memcpy(&_holder.data.raw.uint64Val, &ptr, sizeof(_T *));
+    memcpy(&data.raw.uint64Val, &ptr, sizeof(_T *));
 }
 
-inline LLBC_Variant::LLBC_Variant(const sint64 &i64)
+inline LLBC_Variant::Holder::Holder(const sint64 &i64) : type(LLBC_VariantType::RAW_SINT64)
 {
-    _holder.type = LLBC_VariantType::RAW_SINT64;
-    _holder.data.raw.int64Val = i64;
+    data.raw.int64Val = i64;
 }
 
-inline LLBC_Variant::LLBC_Variant(const uint64 &ui64)
+inline LLBC_Variant::Holder::Holder(const uint64 &ui64) : type(LLBC_VariantType::RAW_UINT64)
 {
-    _holder.type = LLBC_VariantType::RAW_UINT64;
-    _holder.data.raw.uint64Val = ui64;
+    data.raw.uint64Val = ui64;
 }
 
-inline LLBC_Variant::LLBC_Variant(const float &f)
+inline LLBC_Variant::Holder::Holder(const float &f) : type(LLBC_VariantType::RAW_FLOAT)
 {
-    _holder.type = LLBC_VariantType::RAW_FLOAT;
-    _holder.data.raw.doubleVal = f;
+    data.raw.doubleVal = f;
 }
 
-inline LLBC_Variant::LLBC_Variant(const double &d)
+inline LLBC_Variant::Holder::Holder(const double &d) : type(LLBC_VariantType::RAW_DOUBLE)
 {
-    _holder.type = LLBC_VariantType::RAW_DOUBLE;
-    _holder.data.raw.doubleVal = d;
+    data.raw.doubleVal = d;
 }
 
-template <typename _T,
-          typename std::enable_if<std::is_enum<_T>::value, int>::type>
-LLBC_Variant::LLBC_Variant(const _T &en)
+template <typename _T, std::enable_if_t<std::is_enum_v<_T>, int>>
+LLBC_Variant::Holder::Holder(const _T &en) : type(LLBC_VariantType::RAW_SINT64)
 {
-    _holder.type = LLBC_VariantType::RAW_SINT64;
-    _holder.data.raw.int64Val = static_cast<sint64>(en);
+    data.raw.int64Val = static_cast<sint64>(en);
 }
 
-inline LLBC_Variant::LLBC_Variant(const std::string &str)
+inline LLBC_Variant::Holder::Holder(const char *str) : type(LLBC_VariantType::STR_DFT)
 {
-    _holder.type = LLBC_VariantType::STR_DFT;
-    if (!str.empty())
-        _holder.data.obj.str = new LLBC_String(str.data(), str.size());
+    new (&data.obj.str) Str(str);
 }
 
-inline LLBC_Variant::LLBC_Variant(const LLBC_String &str)
+inline LLBC_Variant::Holder::Holder(const std::string &str) : type(LLBC_VariantType::STR_DFT)
 {
-    _holder.type = LLBC_VariantType::STR_DFT;
-    if (!str.empty())
-        _holder.data.obj.str = new LLBC_String(str.data(), str.size());
+    new (&data.obj.str) Str(str);
 }
 
-inline LLBC_Variant::LLBC_Variant(const LLBC_CString &str)
+inline LLBC_Variant::Holder::Holder(const LLBC_String &str) : type(LLBC_VariantType::STR_DFT)
 {
-    _holder.type = LLBC_VariantType::STR_DFT;
-    if (!str.empty())
-        _holder.data.obj.str = new LLBC_String(str.data(), str.size());
+    new (&data.obj.str) Str(str);
+}
+
+inline LLBC_Variant::Holder::Holder(const LLBC_CString &str) : type(LLBC_VariantType::STR_DFT)
+{
+    new (&data.obj.str) Str(str);
 }
 
 template <typename _T1, typename _T2>
-LLBC_Variant::LLBC_Variant(const std::pair<_T1, _T2> &pa)
+LLBC_Variant::Holder::Holder(const std::pair<_T1, _T2> &pa) : type(LLBC_VariantType::SEQ_DFT)
 {
-    _holder.type = LLBC_VariantType::SEQ_DFT;
-    _holder.data.obj.seq = new Seq();
-    _holder.data.obj.seq->emplace_back(pa.first);
-    _holder.data.obj.seq->emplace_back(pa.second);
+    new (&data.obj.seq) Seq();
+    data.obj.seq.emplace_back(pa.first);
+    data.obj.seq.emplace_back(pa.second);
 }
 
-inline LLBC_Variant::LLBC_Variant(const Seq &seq)
+inline LLBC_Variant::Holder::Holder(const Seq &seq) : type(LLBC_VariantType::SEQ_DFT)
 {
-    _holder.type = LLBC_VariantType::SEQ_DFT;
-    if (!seq.empty())
-        _holder.data.obj.seq = new Seq(seq.begin(), seq.end());
+    new (&data.obj.seq) Seq(seq);
 }
 
 template <typename _T>
-LLBC_Variant::LLBC_Variant(const std::vector<_T> &seq)
+LLBC_Variant::Holder::Holder(const std::vector<_T> &vec) : type(LLBC_VariantType::SEQ_DFT)
 {
-    CtFromUnaryCont<_T, std::vector<_T> >(seq);
-}
-template <typename _T>
-LLBC_Variant::LLBC_Variant(const std::list<_T> &lst)
-{
-    CtFromUnaryCont<_T, std::list<_T> >(lst);
-}
-
-template <typename _T>
-LLBC_Variant::LLBC_Variant(const std::deque<_T> &dqe)
-{
-    CtFromUnaryCont<_T, std::deque<_T> >(dqe);
-}
-template <typename _T>
-LLBC_Variant::LLBC_Variant(const std::queue<_T> &que)
-{
-    CtFromUnaryCont<_T, std::queue<_T> >(que);
+    new (&data.obj.seq) Seq();
+    for (const auto &elem : vec)
+    {
+        data.obj.seq.emplace_back(elem);
+    }
 }
 
 template <typename _T>
-LLBC_Variant::LLBC_Variant(const std::set<_T> &s)
+LLBC_Variant::Holder::Holder(const std::list<_T> &lst) : type(LLBC_VariantType::SEQ_DFT)
 {
-    CtFromUnaryCont<_T, std::set<_T> >(s);
+    new (&data.obj.seq) Seq();
+    for (const auto &elem : lst)
+    {
+        data.obj.seq.emplace_back(elem);
+    }
 }
 
 template <typename _T>
-LLBC_Variant::LLBC_Variant(const std::unordered_set<_T> &us)
+LLBC_Variant::Holder::Holder(const std::deque<_T> &dqe) : type(LLBC_VariantType::SEQ_DFT)
 {
-    CtFromUnaryCont<_T, std::unordered_set<_T> >(us);
+    new (&data.obj.seq) Seq();
+    for (const auto &elem : dqe)
+    {
+        data.obj.seq.emplace_back(elem);
+    }
 }
 
-inline LLBC_Variant::LLBC_Variant(const LLBC_Variant::Dict &dict)
+template <typename _T>
+LLBC_Variant::Holder::Holder(const std::queue<_T> &que) : type(LLBC_VariantType::SEQ_DFT)
 {
-    _holder.type = LLBC_VariantType::DICT_DFT;
-    _holder.data.obj.dict = new Dict(dict);
+    new (&data.obj.seq) Seq();
+    std::queue<_T> tempQue = que;
+    while (!tempQue.empty())
+    {
+        data.obj.seq.emplace_back(tempQue.front());
+        tempQue.pop();
+    }
+}
+
+template <typename _T>
+LLBC_Variant::Holder::Holder(const std::set<_T> &s) : type(LLBC_VariantType::SEQ_DFT)
+{
+    new (&data.obj.seq) Seq();
+    for (const auto &elem : s)
+    {
+        data.obj.seq.emplace_back(elem);
+    }
+}
+
+template <typename _T>
+LLBC_Variant::Holder::Holder(const std::unordered_set<_T> &us) : type(LLBC_VariantType::SEQ_DFT)
+{
+    new (&data.obj.seq) Seq();
+    for (const auto &elem : us)
+    {
+        data.obj.seq.emplace_back(elem);
+    }
+}
+
+inline LLBC_Variant::Holder::Holder(const Dict &dict) : type(LLBC_VariantType::DICT_DFT)
+{
+    new (&data.obj.dict) Dict(dict);
 }
 
 template <typename _Key, typename _Val>
-LLBC_Variant::LLBC_Variant(const std::map<_Key, _Val> &m)
+LLBC_Variant::Holder::Holder(const std::map<_Key, _Val> &m) : type(LLBC_VariantType::DICT_DFT)
 {
-    CtFromBinaryCont<_Key, _Val, std::map<_Key, _Val> >(m);
+    new (&data.obj.dict) Dict();
+    for (const auto &pair : m)
+    {
+        data.obj.dict.emplace(LLBC_Variant(pair.first), LLBC_Variant(pair.second));
+    }
 }
 
 template <typename _Key, typename _Val>
-LLBC_Variant::LLBC_Variant(const std::unordered_map<_Key, _Val> &um)
+LLBC_Variant::Holder::Holder(const std::unordered_map<_Key, _Val> &um) : type(LLBC_VariantType::DICT_DFT)
 {
-    CtFromBinaryCont<_Key, _Val, std::unordered_map<_Key, _Val> >(um);
+    new (&data.obj.dict) Dict();
+    for (const auto &pair : um)
+    {
+        data.obj.dict.emplace(LLBC_Variant(pair.first), LLBC_Variant(pair.second));
+    }
+}
+
+
+inline LLBC_Variant::LLBC_Variant(const bool &b) : _holder(b)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const sint8 &i8) : _holder(i8)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const uint8 &ui8) : _holder(ui8)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const sint16 &i16) : _holder(i16)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const uint16 &ui16) : _holder(ui16)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const sint32 &i32) : _holder(i32)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const uint32 &ui32) : _holder(ui32)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const long &l) : _holder(l)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const ulong &ul) : _holder(ul)
+{
+
+}
+
+template <typename _T>
+LLBC_Variant::LLBC_Variant(const _T * const &ptr) : _holder(ptr)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const sint64 &i64) : _holder(i64)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const uint64 &ui64) : _holder(ui64)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const float &f) : _holder(f)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const double &d) : _holder(d)
+{
+
+}
+
+template <typename _T, std::enable_if_t<std::is_enum_v<_T>, int>>
+LLBC_Variant::LLBC_Variant(const _T &en) : _holder(en)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const std::string &str) : _holder(str)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const LLBC_String &str) : _holder(str)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const LLBC_CString &str) : _holder(str)
+{
+
+}
+
+template <typename _T1, typename _T2>
+LLBC_Variant::LLBC_Variant(const std::pair<_T1, _T2> &pa) : _holder(pa)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const Seq &seq) : _holder(seq)
+{
+
+}
+
+template <typename _T>
+LLBC_Variant::LLBC_Variant(const std::vector<_T> &vec) : _holder(vec)
+{
+
+}
+
+template <typename _T>
+LLBC_Variant::LLBC_Variant(const std::list<_T> &lst) : _holder(lst)
+{
+
+}
+
+template <typename _T>
+LLBC_Variant::LLBC_Variant(const std::deque<_T> &dqe) : _holder(dqe)
+{
+
+}
+
+template <typename _T>
+LLBC_Variant::LLBC_Variant(const std::queue<_T> &que) : _holder(que)
+{
+
+}
+
+template <typename _T>
+LLBC_Variant::LLBC_Variant(const std::set<_T> &s) : _holder(s)
+{
+
+}
+
+template <typename _T>
+LLBC_Variant::LLBC_Variant(const std::unordered_set<_T> &us) : _holder(us)
+{
+
+}
+
+inline LLBC_Variant::LLBC_Variant(const Dict &dict) : _holder(dict)
+{
+
+}
+
+template <typename _Key, typename _Val>
+LLBC_Variant::LLBC_Variant(const std::map<_Key, _Val> &m) : _holder(m)
+{
+
+}
+
+template <typename _Key, typename _Val>
+LLBC_Variant::LLBC_Variant(const std::unordered_map<_Key, _Val> &um) : _holder(um)
+{
+
 }
 
 inline LLBC_VariantType::ENUM LLBC_Variant::GetType() const
@@ -235,22 +403,22 @@ inline const LLBC_Variant::Holder &LLBC_Variant::GetHolder() const
 
 inline bool LLBC_Variant::IsNil() const
 {
-    return (_holder.type  == LLBC_VariantType::NIL);
+    return _holder.type  == LLBC_VariantType::NIL;
 }
 
 inline bool LLBC_Variant::IsRaw() const
 {
-    return ((_holder.type & LLBC_VariantType::RAW) == LLBC_VariantType::RAW);
+    return (_holder.type & LLBC_VariantType::RAW) == LLBC_VariantType::RAW;
 }
 
 inline bool LLBC_Variant::IsSignedRaw() const
 {
-    return (IsRaw() && ((_holder.type & LLBC_VariantType::MASK_RAW_SIGNED) == LLBC_VariantType::MASK_RAW_SIGNED));
+    return IsRaw() && (_holder.type & LLBC_VariantType::MASK_RAW_SIGNED) == LLBC_VariantType::MASK_RAW_SIGNED;
 }
 
 inline bool LLBC_Variant::IsUnsignedRaw() const
 {
-    return (IsRaw() && ((_holder.type & LLBC_VariantType::MASK_RAW_SIGNED) != LLBC_VariantType::MASK_RAW_SIGNED));
+    return IsRaw() && (_holder.type & LLBC_VariantType::MASK_RAW_SIGNED) != LLBC_VariantType::MASK_RAW_SIGNED;
 }
 
 inline bool LLBC_Variant::IsBool() const
@@ -418,27 +586,9 @@ inline LLBC_Variant &LLBC_Variant::BecomeStr()
     return Become(LLBC_VariantType::STR_DFT);
 }
 
-inline LLBC_Variant &LLBC_Variant::BecomeStrX()
-{
-    BecomeStr();
-    if (!_holder.data.obj.str)
-        _holder.data.obj.str = new Str;
-
-    return *this;
-}
-
 inline LLBC_Variant &LLBC_Variant::BecomeSeq()
 {
     return Become(LLBC_VariantType::SEQ_DFT);
-}
-
-inline LLBC_Variant &LLBC_Variant::BecomeSeqX()
-{
-    BecomeSeq();
-    if (!_holder.data.obj.seq)
-        _holder.data.obj.seq = new Seq;
-
-    return *this;
 }
 
 inline LLBC_Variant &LLBC_Variant::BecomeDict()
@@ -446,21 +596,19 @@ inline LLBC_Variant &LLBC_Variant::BecomeDict()
     return Become(LLBC_VariantType::DICT_DFT);
 }
 
-inline LLBC_Variant &LLBC_Variant::BecomeDictX()
-{
-    BecomeDict();
-    if (!_holder.data.obj.dict)
-        _holder.data.obj.dict = new Dict;
-
-    return *this;
-}
-
 inline LLBC_Variant &LLBC_Variant::Become(LLBC_VariantType::ENUM ty)
 {
     if (_holder.type != ty)
     {
-        _holder.ClearData();
+        _holder.Reset();
+
         _holder.type = ty;
+        if (ty == LLBC_VariantType::STR_DFT)
+            new (&_holder.data.obj.str) Str;
+        else if (ty == LLBC_VariantType::SEQ_DFT)
+            new (&_holder.data.obj.seq) Seq;
+        else if (ty == LLBC_VariantType::DICT_DFT)
+            new (&_holder.data.obj.dict) Dict;
     }
 
     return *this;
@@ -589,13 +737,13 @@ template <>
 inline LLBC_Variant::operator char *() const
 {
     thread_local char emptyMutableEmptyStr[1] = {'\0'};
-    return IsStrX() ?  const_cast<char *>(_holder.data.obj.str->c_str()) : emptyMutableEmptyStr;
+    return IsStr() ? const_cast<char *>(_holder.data.obj.str.c_str()) : emptyMutableEmptyStr;
 }
 
 template <>
 inline LLBC_Variant::operator const char *() const
 {
-    return IsStrX() ? _holder.data.obj.str->c_str() : "";
+    return IsStr() ? _holder.data.obj.str.c_str() : "";
 }
 
 inline LLBC_Variant::operator sint64() const
@@ -636,7 +784,7 @@ LLBC_Variant::operator std::pair<_T1, _T2>() const
     if (!IsSeq() || Size() < 2)
         return std::make_pair(_T1(), _T2());
 
-    const Seq &seq = *_holder.data.obj.seq;
+    const Seq &seq = _holder.data.obj.seq;
     return std::make_pair<_T1, _T2>(seq[0], seq[1]);
 }
 
@@ -649,9 +797,9 @@ template <typename _ElemTy>
 LLBC_Variant::operator std::vector<_ElemTy>() const
 {
     std::vector<_ElemTy> v;
-    if (IsSeqX() && !IsEmpty())
+    if (IsSeq() && !IsEmpty())
     {
-        const Seq &seq = *_holder.data.obj.seq;
+        const Seq &seq = _holder.data.obj.seq;
 
         v.reserve(seq.size());
         const SeqConstIter endIt = seq.end();
@@ -671,14 +819,14 @@ LLBC_Variant::operator std::set<_ElemTy>() const
 
     if (IsSeq())
     {
-        SeqConstIter endIt = _holder.data.obj.seq->end();
-        for (SeqConstIter it = _holder.data.obj.seq->begin(); it != endIt; ++it)
+        SeqConstIter endIt = _holder.data.obj.seq.end();
+        for (SeqConstIter it = _holder.data.obj.seq.begin(); it != endIt; ++it)
             s.insert(*it);
     }
     else if (IsDict())
     {
-        DictConstIter endIt = _holder.data.obj.dict->end();
-        for (DictConstIter it = _holder.data.obj.dict->begin(); it != endIt; ++it)
+        DictConstIter endIt = _holder.data.obj.dict.end();
+        for (DictConstIter it = _holder.data.obj.dict.begin(); it != endIt; ++it)
             s.insert(it->first);
     }
 
@@ -694,14 +842,14 @@ LLBC_Variant::operator std::unordered_set<_ElemTy>() const
 
     if (IsSeq())
     {
-        SeqConstIter endIt = _holder.data.obj.seq->end();
-        for (SeqConstIter it = _holder.data.obj.seq->begin(); it != endIt; ++it)
+        SeqConstIter endIt = _holder.data.obj.seq.end();
+        for (SeqConstIter it = _holder.data.obj.seq.begin(); it != endIt; ++it)
             us.insert(*it);
     }
     else if (IsDict())
     {
-        DictConstIter endIt = _holder.data.obj.dict->end();
-        for (DictConstIter it = _holder.data.obj.dict->begin(); it != endIt; ++it)
+        DictConstIter endIt = _holder.data.obj.dict.end();
+        for (DictConstIter it = _holder.data.obj.dict.begin(); it != endIt; ++it)
             us.insert(it->first);
     }
 
@@ -717,14 +865,14 @@ LLBC_Variant::operator std::queue<_ElemTy>() const
 
     if (IsSeq())
     {
-        SeqConstIter endIt = _holder.data.obj.seq->end();
-        for (SeqConstIter it = _holder.data.obj.seq->begin(); it != endIt; ++it)
+        SeqConstIter endIt = _holder.data.obj.seq.end();
+        for (SeqConstIter it = _holder.data.obj.seq.begin(); it != endIt; ++it)
             q.push(*it);
     }
     else if (IsDict())
     {
-        DictConstIter endIt = _holder.data.obj.dict->end();
-        for (DictConstIter it = _holder.data.obj.dict->begin(); it != endIt; ++it)
+        DictConstIter endIt = _holder.data.obj.dict.end();
+        for (DictConstIter it = _holder.data.obj.dict.begin(); it != endIt; ++it)
             q.push(*it);
     }
 
@@ -740,14 +888,14 @@ LLBC_Variant::operator std::deque<_Ty>() const
 
     if (IsSeq())
     {
-        SeqConstIter endIt = _holder.data.obj.seq->end();
-        for (SeqConstIter it = _holder.data.obj.seq->begin(); it != endIt; ++it)
+        SeqConstIter endIt = _holder.data.obj.seq.end();
+        for (SeqConstIter it = _holder.data.obj.seq.begin(); it != endIt; ++it)
             dq.push_back(*it);
     }
     else if (IsDict())
     {
-        DictConstIter endIt = _holder.data.obj.dict->end();
-        for (DictConstIter it = _holder.data.obj.dict->begin(); it != endIt; ++it)
+        DictConstIter endIt = _holder.data.obj.dict.end();
+        for (DictConstIter it = _holder.data.obj.dict.begin(); it != endIt; ++it)
             dq.push_back(*it);
     }
 
@@ -763,7 +911,7 @@ template <typename _Key, typename _Val>
 LLBC_Variant::operator std::map<_Key, _Val>() const
 {
     std::map<_Key, _Val> m;
-    if (IsDictX())
+    if (IsDict())
         CpToBinaryCont<_Key, _Val, std::map<_Key, _Val> >(m);
 
     return m;
@@ -773,7 +921,7 @@ template <typename _Key, typename _Val>
 LLBC_Variant::operator std::unordered_map<_Key, _Val>() const
 {
     std::map<_Key, _Val> m;
-    if (IsDictX())
+    if (IsDict())
         CpToBinaryCont<_Key, _Val, std::map<_Key, _Val> >(m);
 
     return m;
@@ -781,12 +929,12 @@ LLBC_Variant::operator std::unordered_map<_Key, _Val>() const
 
 inline void LLBC_Variant::Clear()
 {
-    if (IsStrX())
-        _holder.data.obj.str->clear();
-    else if (IsSeqX())
-        _holder.data.obj.seq->clear();
-    else if (IsDictX())
-        _holder.data.obj.dict->clear();
+    if (IsStr())
+        _holder.data.obj.str.clear();
+    else if (IsSeq())
+        _holder.data.obj.seq.clear();
+    else if (IsDict())
+        _holder.data.obj.dict.clear();
     else if (IsRaw())
         _holder.data.raw.int64Val = 0;
 }
@@ -878,7 +1026,7 @@ template <typename _T,
           typename std::enable_if<std::is_enum<_T>::value, int>::type>
 LLBC_Variant &LLBC_Variant::operator=(const _T &en)
 {
-    _holder.ClearData();
+    _holder.Reset();
 
     _holder.type = LLBC_VariantType::RAW_SINT64;
     _holder.data.raw.int64Val = static_cast<sint64>(en);
@@ -889,7 +1037,7 @@ LLBC_Variant &LLBC_Variant::operator=(const _T &en)
 template <typename _T>
 LLBC_Variant &LLBC_Variant::operator=(const _T * const &ptr)
 {
-    _holder.ClearData();
+    _holder.Reset();
     _holder.type = LLBC_VariantType::RAW_PTR;
 
     memcpy(&_holder.data.raw.uint64Val, &ptr, sizeof(_T *));
@@ -900,11 +1048,11 @@ LLBC_Variant &LLBC_Variant::operator=(const _T * const &ptr)
 template <typename _T1, typename _T2>
 LLBC_Variant &LLBC_Variant::operator=(const std::pair<_T1, _T2> &pa)
 {
-    BecomeSeqX();
-    _holder.data.obj.seq->clear();
+    BecomeSeq();
+    _holder.data.obj.seq.clear();
 
-    _holder.data.obj.seq->emplace_back(pa.first);
-    _holder.data.obj.seq->emplace_back(pa.second);
+    _holder.data.obj.seq.emplace_back(pa.first);
+    _holder.data.obj.seq.emplace_back(pa.second);
 
     return *this;
 }
@@ -1136,11 +1284,6 @@ inline void LLBC_Variant::SetType(int type)
     _holder.type = static_cast<LLBC_VariantType::ENUM>(type);
 }
 
-inline void LLBC_Variant::ClearData()
-{
-    _holder.ClearData();
-}
-
 inline const LLBC_String &LLBC_Variant::TypeToString() const
 {
     return LLBC_VariantType::Type2Str(_holder.type);
@@ -1177,27 +1320,23 @@ void LLBC_Variant::CtFromUnaryCont(const _UnaryContainer &unaryCont)
     BecomeSeq();
 
     // clear members.
-    Seq *&seq = _holder.data.obj.seq;
-    if (seq)
-        seq->clear();
+    Seq &seq = _holder.data.obj.seq;
+    seq.clear();
 
     // if giving unary container is empty, return.
     if (unaryCont.empty())
         return;
 
-    // create sequence object if it has not been created before.
-    if (!seq)
-        seq = new Seq;
     // make sure the capacity greater than or equal to the giving unary container elements size.
-    if (seq->capacity() < unaryCont.size())
-        seq->reserve(unaryCont.size());
+    if (seq.capacity() < unaryCont.size())
+        seq.reserve(unaryCont.size());
 
     // execute elements copy.
     const typename _UnaryContainer::const_iterator endIt = unaryCont.end();
     for (typename _UnaryContainer::const_iterator it = unaryCont.begin();
          it != endIt;
          ++it)
-        seq->emplace_back(*it);
+        seq.emplace_back(*it);
 }
 
 template <typename _Key, typename _Val, typename _BinaryContainer>
@@ -1207,32 +1346,27 @@ void LLBC_Variant::CtFromBinaryCont(const _BinaryContainer &binaryCont)
     BecomeDict();
 
     // clear members.
-    Dict *&dict = _holder.data.obj.dict;
-    if (dict)
-        dict->clear();
+    Dict &dict = _holder.data.obj.dict;
+    dict.clear();
 
     // if giving binary container is empty, return.
     if (binaryCont.empty())
         return;
-
-    // create dictionary object if it has not been created before.
-    if (!dict)
-        dict = new Dict;
 
     // execute elements copy.
     const typename _BinaryContainer::const_iterator endIt = binaryCont.end();
     for (typename _BinaryContainer::const_iterator it = binaryCont.begin();
          it != endIt;
          ++it)
-        dict->emplace(LLBC_Variant(it->first), LLBC_Variant(it->second));
+        dict.emplace(it->first, it->second);
 }
 
 template <typename _Key, typename _Val, typename _BinaryContainer>
 void LLBC_Variant::CpToBinaryCont(_BinaryContainer &binaryCont) const
 {
-    const DictConstIter endIt = _holder.data.obj.dict->end();
-    for (DictConstIter it = _holder.data.obj.dict->begin(); it != endIt; ++it)
-        binaryCont.emplace(LLBC_Variant(it->first), LLBC_Variant(it->second));
+    const DictConstIter endIt = _holder.data.obj.dict.end();
+    for (DictConstIter it = _holder.data.obj.dict.begin(); it != endIt; ++it)
+        binaryCont.emplace(it->first, it->second);
 }
 
 template <typename _64Ty>
@@ -1246,22 +1380,22 @@ _64Ty LLBC_Variant::AsSignedOrUnsigned64() const
 
     if (firstType == LLBC_VariantType::STR)
     {
-        const Str * const &str = _holder.data.obj.str;
-        if (!str || str->empty())
+        const Str &str = _holder.data.obj.str;
+        if (str.empty())
             return 0;
 
         int base = 10;
-        if (str->size() > 2)
+        if (str.size() > 2)
         {
-            size_t hexadecimalBegPos = str->find("0x");
+            size_t hexadecimalBegPos = str.find("0x");
             if (hexadecimalBegPos == LLBC_String::npos)
-                hexadecimalBegPos = str->find("0X");
+                hexadecimalBegPos = str.find("0X");
 
             if (hexadecimalBegPos != LLBC_String::npos)
                 base = 16;
         }
 
-        return LLBC_Str2Num<_64Ty>(str->c_str(), base);
+        return LLBC_Str2Num<_64Ty>(str.c_str(), base);
     }
 
     if (_holder.type == LLBC_VariantType::RAW_FLOAT ||
@@ -1277,21 +1411,6 @@ _64Ty LLBC_Variant::AsSignedOrUnsigned64() const
         return _holder.data.raw.uint64Val;
     else
         return _holder.data.raw.int64Val;
-}
-
-inline bool LLBC_Variant::IsStrX() const
-{
-    return IsStr() && _holder.data.obj.str != nullptr;
-}
-
-inline bool LLBC_Variant::IsSeqX() const
-{
-    return IsSeq() && _holder.data.obj.seq != nullptr;
-}
-
-inline bool LLBC_Variant::IsDictX() const
-{
-    return IsDict() && _holder.data.obj.dict != nullptr;
 }
 
 inline void LLBC_Variant::SeqPushBack()
@@ -1339,20 +1458,18 @@ struct hash<LLBC_NS LLBC_Variant>
         }
         else if (var.IsStr())
         {
-            const LLBC_NS LLBC_Variant::Str * const &str = var.GetHolder().data.obj.str;
-            return str && !str->empty() ?
-                LLBC_NS LLBC_Hash(str->data(), str->size()) :
-                    LLBC_NS LLBC_Hash(nullptr, 0);
+            const LLBC_NS LLBC_Variant::Str &str = var.GetHolder().data.obj.str;
+            return !str.empty() ? LLBC_NS LLBC_Hash(str.data(), str.size()) : LLBC_NS LLBC_Hash(nullptr, 0);
         }
         else if (var.IsSeq())
         {
             size_t hashVal = 10000;
-            const LLBC_NS LLBC_Variant::Seq * const &seq = var.GetHolder().data.obj.seq;
-            if (!seq || seq->empty())
+            const LLBC_NS LLBC_Variant::Seq &seq = var.GetHolder().data.obj.seq;
+            if (seq.empty())
                 return hashVal;
 
-            const LLBC_NS LLBC_Variant::SeqConstIter endIt = seq->end();
-            for (LLBC_NS LLBC_Variant::SeqConstIter it = seq->begin();
+            const LLBC_NS LLBC_Variant::SeqConstIter endIt = seq.end();
+            for (LLBC_NS LLBC_Variant::SeqConstIter it = seq.begin();
                  it != endIt;
                  ++it)
                  hashVal += (*this)(*it);
@@ -1362,12 +1479,12 @@ struct hash<LLBC_NS LLBC_Variant>
         else if (var.IsDict())
         {
             size_t hashVal = 20000;
-            const LLBC_NS LLBC_Variant::Dict * const &dict = var.GetHolder().data.obj.dict;
-            if (!dict || dict->empty())
+            const LLBC_NS LLBC_Variant::Dict &dict = var.GetHolder().data.obj.dict;
+            if (dict.empty())
                 return hashVal;
 
-            const LLBC_NS LLBC_Variant::DictConstIter endIt = dict->end();
-            for (LLBC_NS LLBC_Variant::DictConstIter it = dict->begin();
+            const LLBC_NS LLBC_Variant::DictConstIter endIt = dict.end();
+            for (LLBC_NS LLBC_Variant::DictConstIter it = dict.begin();
                  it != endIt;
                  ++it)
                 hashVal += (*this)(it->first);
@@ -1382,5 +1499,3 @@ struct hash<LLBC_NS LLBC_Variant>
 };
 
 }
-
-

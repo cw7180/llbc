@@ -165,22 +165,70 @@ public:
 
             union ObjType
             {
-                Str *str;
-                Dict *dict;
-                Seq *seq;
+                Str str;
+                Dict dict;
+                Seq seq;
             } obj;
+
+            DataType() {}
+            ~DataType() {};
         } data;
 
-        Holder();
-        ~Holder();
+        Holder() : type(LLBC_VariantType::NIL) { data.raw.uint64Val = 0; }
+        ~Holder() { Reset(); }
+
+        explicit Holder(const bool &b);
+        explicit Holder(const sint8 &i8);
+        explicit Holder(const uint8 &ui8);
+        explicit Holder(const sint16 &i16);
+        explicit Holder(const uint16 &ui16);
+        explicit Holder(const sint32 &i32);
+        explicit Holder(const uint32 &ui32);
+        explicit Holder(const long &l);
+        explicit Holder(const ulong &ul);
+        template <typename _T>
+        explicit Holder(const _T * const &ptr);
+        explicit Holder(const sint64 &i64);
+        explicit Holder(const uint64 &ui64);
+        explicit Holder(const float &f);
+        explicit Holder(const double &d);
+        template <typename _T, std::enable_if_t<std::is_enum_v<_T>, int> = 0>
+        explicit Holder(const _T &en);
+        explicit Holder(const char *str);
+        explicit Holder(const std::string &str);
+        explicit Holder(const LLBC_String &str);
+        explicit Holder(const LLBC_CString &str);
+        template <typename _T1, typename _T2>
+        explicit Holder(const std::pair<_T1, _T2> &pa);
+        explicit Holder(const Seq &seq);
+        template <typename _T>
+        explicit Holder(const std::vector<_T> &vec);
+        template <typename _T>
+        explicit Holder(const std::list<_T> &lst);
+        template <typename _T>
+        explicit Holder(const std::deque<_T> &dqe);
+        template <typename _T>
+        explicit Holder(const std::queue<_T> &que);
+        template <typename _T>
+        explicit Holder(const std::set<_T> &s);
+        template <typename _T>
+        explicit Holder(const std::unordered_set<_T> &us);
+        explicit Holder(const Dict &dict);
+        template <typename _Key, typename _Val>
+        explicit Holder(const std::map<_Key, _Val> &m);
+        template <typename _Key, typename _Val>
+        explicit Holder(const std::unordered_map<_Key, _Val> &um);
+        Holder(const Holder &other);
+        Holder(Holder &&other) noexcept;
+        Holder &operator=(const Holder &other);
+        Holder &operator=(Holder &&other) noexcept;
 
         LLBC_VariantType::ENUM GetFirstType() const;
 
-        void Clear();
+        void Reset();
 
     private:
         friend class LLBC_Variant;
-        void ClearData();
     };
 
 public:
@@ -190,7 +238,7 @@ public:
     static void DestroyNumber2StrFastAccessTable();
 
 public:
-    LLBC_Variant();
+    LLBC_Variant() = default;
 
     // Constructors(all parameter constructors is explicit, copy constructor is non-explicit).
     explicit LLBC_Variant(const bool &b);
@@ -208,8 +256,7 @@ public:
     explicit LLBC_Variant(const uint64 &ui64);
     explicit LLBC_Variant(const float &f);
     explicit LLBC_Variant(const double &d);
-    template <typename _T,
-              typename std::enable_if<std::is_enum<_T>::value, int>::type = 0>
+    template <typename _T, std::enable_if_t<std::is_enum_v<_T>, int> = 0>
     explicit LLBC_Variant(const _T &en);
     explicit LLBC_Variant(const char *str);
     explicit LLBC_Variant(const std::string &str);
@@ -285,11 +332,8 @@ public:
     LLBC_Variant &BecomeFloat();
     LLBC_Variant &BecomeDouble();
     LLBC_Variant &BecomeStr();
-    LLBC_Variant &BecomeStrX();
     LLBC_Variant &BecomeSeq();
-    LLBC_Variant &BecomeSeqX();
     LLBC_Variant &BecomeDict();
-    LLBC_Variant &BecomeDictX();
     LLBC_Variant &Become(LLBC_VariantType::ENUM ty);
 
     // Real data fetch.
@@ -565,7 +609,6 @@ private:
     friend class LLBC_VariantTraits;
 
     void SetType(int type);
-    void ClearData();
 
     void CtFromRaw(uint64 raw, LLBC_VariantType::ENUM ty);
     template <typename _T, typename _UnaryContainer>
@@ -579,10 +622,6 @@ private:
     template <typename _64Ty>
     _64Ty AsSignedOrUnsigned64() const;
 
-    bool IsStrX() const;
-    bool IsSeqX() const;
-    bool IsDictX() const;
-
     void SeqPushBack();
     void SeqPushBackElem(const Seq::value_type &val);
 
@@ -590,7 +629,7 @@ private:
     Dict::size_type DictEraseKey(const Dict::key_type &key);
 
 private:
-    struct Holder _holder;
+    Holder _holder;
     static Str **_num2StrFastAccessTbl;
 };
 
