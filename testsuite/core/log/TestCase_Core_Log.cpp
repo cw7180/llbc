@@ -36,6 +36,9 @@ int TestCase_Core_Log::Run(int argc, char *argv[])
     LLBC_PrintLn("core/log test:");
     LLBC_PrintLn("Current dir:%s", LLBC_Directory::CurDir().c_str());
 
+    // Do LLBC_LogLevel::GetLevelEnum parse test.
+    DoLogLevelParseTest();
+
     // Do uninited log message test
     DoUninitLogTest();
 
@@ -240,6 +243,65 @@ void TestCase_Core_Log::DoLogLevelSetTest()
 
     testOutput(LLBC_LogAppenderType::Console, LLBC_LogLevel::End);
     testOutput(LLBC_LogAppenderType::File, LLBC_LogLevel::End);
+}
+
+void TestCase_Core_Log::DoLogLevelParseTest()
+{
+    LLBC_PrintLn("LLBC_LogLevel::GetLevelEnum test begin.");
+
+    // 1. Test GetLevelEnum: parse long level string(case-insensitive).
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("TRACE") != LLBC_LogLevel::Trace,
+                          void(), "GetLevelEnum(TRACE) failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("debug") != LLBC_LogLevel::Debug,
+                          void(), "GetLevelEnum(debug) failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("Info") != LLBC_LogLevel::Info,
+                          void(), "GetLevelEnum(Info) failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("warn") != LLBC_LogLevel::Warn,
+                          void(), "GetLevelEnum(warn) failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("ERROR") != LLBC_LogLevel::Error,
+                          void(), "GetLevelEnum(ERROR) failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("Fatal") != LLBC_LogLevel::Fatal,
+                          void(), "GetLevelEnum(Fatal) failed");
+
+    // 2. Test GetLevelEnum: parse short level string(case-insensitive).
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("T") != LLBC_LogLevel::Trace,
+                          void(), "GetLevelEnum(T) failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("d") != LLBC_LogLevel::Debug,
+                          void(), "GetLevelEnum(d) failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("I") != LLBC_LogLevel::Info,
+                          void(), "GetLevelEnum(I) failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("w") != LLBC_LogLevel::Warn,
+                          void(), "GetLevelEnum(w) failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("E") != LLBC_LogLevel::Error,
+                          void(), "GetLevelEnum(E) failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("f") != LLBC_LogLevel::Fatal,
+                          void(), "GetLevelEnum(f) failed");
+
+    // 3. Test GetLevelEnum: leading/trailing whitespace should be stripped.
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("  INFO  ") != LLBC_LogLevel::Info,
+                          void(), "GetLevelEnum(\"  INFO  \") failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("\tDebug\n") != LLBC_LogLevel::Debug,
+                          void(), "GetLevelEnum(\"\\tDebug\\n\") failed");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum(" w ") != LLBC_LogLevel::Warn,
+                          void(), "GetLevelEnum(\" w \") failed");
+
+    // 4. Test GetLevelEnum: empty string should return defaultLevel(default is End).
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("") != LLBC_LogLevel::End,
+                          void(), "GetLevelEnum(empty) should return End");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("", LLBC_LogLevel::Info) != LLBC_LogLevel::Info,
+                          void(), "GetLevelEnum(empty, Info) should return Info");
+
+    // 5. Test GetLevelEnum: invalid string should return defaultLevel.
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("INVALID") != LLBC_LogLevel::End,
+                          void(), "GetLevelEnum(INVALID) should return End");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("INVALID", LLBC_LogLevel::Warn) != LLBC_LogLevel::Warn,
+                          void(), "GetLevelEnum(INVALID, Warn) should return Warn");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("X", LLBC_LogLevel::Error) != LLBC_LogLevel::Error,
+                          void(), "GetLevelEnum(X, Error) should return Error");
+    LLBC_ErrorAndReturnIf(LLBC_LogLevel::GetLevelEnum("   ", LLBC_LogLevel::Trace) != LLBC_LogLevel::Trace,
+                          void(), "GetLevelEnum(whitespace, Trace) should return Trace");
+
+    LLBC_PrintLn("LLBC_LogLevel::GetLevelEnum test finished.");
 }
 
 void TestCase_Core_Log::DoJsonLogTest()

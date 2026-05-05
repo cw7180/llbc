@@ -60,10 +60,11 @@ public:
 public:
     /**
      * Get specific log level enum by level string representation.
-     * @param[in] levelStr - log level representation.
+     * @param[in] levelStr      - log level representation.
+     * @param[in] defaultLevel  - default log level to return if levelStr is invalid.
      * @return int - log level enum.
      */
-    static int GetLevelEnum(const LLBC_CString &levelStr);
+    static int GetLevelEnum(const LLBC_CString &levelStr, int defaultLevel = LLBC_LogLevel::End);
 
     /**
      * Check giving log level is validate or not.

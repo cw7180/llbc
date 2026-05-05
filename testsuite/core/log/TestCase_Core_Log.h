@@ -35,6 +35,7 @@ public:
 
 private:
     void DoLogLevelSetTest();
+    void DoLogLevelParseTest();
     void DoJsonLogTest();
     void DoUninitLogTest();
     void SyncLoggerMultiThreadTest();
